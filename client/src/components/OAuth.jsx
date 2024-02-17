@@ -3,7 +3,7 @@ import { Button } from 'flowbite-react';
 import { AiFillGoogleCircle } from 'react-icons/ai';
 import { GoogleAuthProvider, getAuth, signInWithPopup } from 'firebase/auth';
 import { app } from '../firebase.js';
-import { signInSuccess } from '../redux/user/userSlice.js'
+import { signInSuccess, signInFailure } from '../redux/user/userSlice.js'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
@@ -29,8 +29,12 @@ export default function OAuth() {
           googlePhotoUrl: resultsFromGoogle.user.photoURL,
         })
       });
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(signInFailure(data.errMsg));
+      }
       if(res.ok){
-        dispatch(signInSuccess(res.data));
+        dispatch(signInSuccess(data));
         navigate('/');
       } else {
         console.error(res);
