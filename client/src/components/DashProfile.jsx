@@ -5,7 +5,7 @@ import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/
 import { app } from '../firebase';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { deleteUserFailure, deleteUserStart, deleteUserSuccess, updateFailure, updateStart, updateSuccess } from '../redux/user/userSlice';
+import { deleteUserFailure, deleteUserStart, deleteUserSuccess, emptyUserNotification, updateFailure, updateStart, updateSuccess } from '../redux/user/userSlice';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
 
 export default function DashProfile() {
@@ -73,6 +73,10 @@ export default function DashProfile() {
             uploadImage();
         }
     }, [imageFile]);
+
+    useEffect(()=>{
+        dispatch(emptyUserNotification());
+    },[]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.id]: e.target.value });
