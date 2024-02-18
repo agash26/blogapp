@@ -36,5 +36,7 @@ export const updateUser = async (req, res, next) => {
         } catch (err) {
             next(err);
         }
+    } else {
+        return next(errorHandler(400, 'Password required'))
     }
 }

@@ -1,18 +1,23 @@
 import { Alert, Button, TextInput } from 'flowbite-react';
 import { useEffect, useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 import { app } from '../firebase';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import { updateFailure, updateStart, updateSuccess } from '../redux/user/userSlice';
 
 export default function DashProfile() {
     const { currentUser } = useSelector((state) => state.user);
     const [imageFile, setImageFile] = useState(null);
     const [imageFileUrl, setImageFileUrl] = useState(null);
-    const [imageUploadProgress, setImageUploadProgress] = useState(0);
+    const [imageUploadProgress, setImageUploadProgress] = useState(null);
     const [imageUploadError, setImageUploadError] = useState(null);
+    const [imageFileLoading, setImageFileLoading] = useState(false);
     const filePickerRef = useRef();
+    const { error: errorMessage, success: successMessage } = useSelector(state => state.user);
+    const [formData, setFormData] = useState({});
+    const dispatch = useDispatch();
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -32,7 +37,8 @@ export default function DashProfile() {
             //     }
             //   }
             // }
-    
+
+            setImageFileLoading(true);
             setImageUploadError(null);
             const storage = getStorage(app);
             const fileName = new Date().getTime() + '_' + imageFile.name;
@@ -54,6 +60,9 @@ export default function DashProfile() {
                 () => {
                     getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
                         setImageFileUrl(downloadUrl);
+                        setFormData({ ...formData, profilePicture: downloadUrl });
+                        setImageUploadProgress(null);
+                        setImageFileLoading(false);
                     });
                 }
             );
@@ -63,12 +72,42 @@ export default function DashProfile() {
         }
     }, [imageFile]);
 
-    
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.id]: e.target.value });
+    }
+
+    const handleSumbit = async (e) => {
+        e.preventDefault();
+        if (Object.keys(formData).length === 0) {
+            return;
+        }
+        if (imageFileLoading) {
+            return;
+        }
+        try {
+            dispatch(updateStart());
+            const res = await fetch(`/api/user/update/${currentUser._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                dispatch(updateFailure(data.errMsg));
+            } else {
+                dispatch(updateSuccess(data));
+            }
+        } catch (error) {
+            dispatch(updateFailure(error.errMsg));
+        }
+    }
 
     return (
         <div className='max-w-lg mx-auto p-3 w-full'>
             <h1 className='my-7 text-center font-semibold text-3xl'>Profile</h1>
-            <form className='flex flex-col gap-4'>
+            <form className='flex flex-col gap-4' onSubmit={handleSumbit}>
                 <input type="file" id="profilePicture" accept='image/*' onChange={handleImageChange} ref={filePickerRef} hidden />
                 <div className='relative w-32 h-32 self-center cursor-pointer shadow-md overflow-hidden rounded-full' onClick={() => filePickerRef.current.click()}>
                     {imageUploadProgress && <CircularProgressbar value={imageUploadProgress || 0} text={`${imageUploadProgress}%`}
@@ -95,18 +134,28 @@ export default function DashProfile() {
                 }
                 <TextInput
                     type='text' id='username' placeholder='username'
-                    defaultValue={currentUser.username} />
+                    defaultValue={currentUser.username} onChange={handleChange} />
                 <TextInput
                     type='text' id='email' placeholder='email'
-                    defaultValue={currentUser.email} />
+                    defaultValue={currentUser.email} onChange={handleChange} />
                 <TextInput
-                    type='text' id='password' placeholder='password' />
-                <Button type='submit' gradientDuoTone="purpleToBlue" outline>Update</Button>
+                    type='password' id='password' placeholder='password' onChange={handleChange} />
+                <Button type='submit' gradientDuoTone="purpleToBlue" outline disabled={imageFileLoading}>Update</Button>
             </form>
             <div className='text-red-500 flex mt-5 justify-between'>
                 <span className='cursor-pointer'>Delete Account</span>
                 <span className='cursor-pointer'>Sign Out</span>
             </div>
+            {errorMessage && (
+                <Alert className='mt-5' color='failure'>
+                    {errorMessage}
+                </Alert>
+            )}
+            {successMessage && (
+                <Alert className='mt-5' color='success'>
+                    {successMessage}
+                </Alert>
+            )}
         </div>
     )
 }
