@@ -4,6 +4,7 @@ import { AiOutlineSearch } from 'react-icons/ai'
 import { FaMoon, FaSun } from 'react-icons/fa6'
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleTheme } from '../redux/theme/themeSlice';
+import { handleSignout } from '../redux/user/userSlice';
 
 
 const Header = () => {
@@ -51,7 +52,7 @@ const Header = () => {
                         </Dropdown.Header>
                         <Link to={'/dashboard?tab=profile'}><Dropdown.Item>Profile</Dropdown.Item></Link>
                         <Dropdown.Divider />
-                        <Dropdown.Item>Sign Out</Dropdown.Item>
+                        <Dropdown.Item onClick={()=>dispatch(handleSignout())}>Sign Out</Dropdown.Item>
                     </Dropdown>
                 ) : (
                     <Link to="/sign-in">

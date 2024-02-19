@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
     currentUser: null,
@@ -6,6 +6,23 @@ const initialState = {
     loading: false,
     success: null
 }
+
+export const handleSignout = createAsyncThunk('user/signout', async () => {
+    try {
+        const res = await fetch('/api/user/signout', {
+            method: 'POST',
+            "Content-Type": "application/json"
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            console.log(data.errMsg);
+        } else {
+            return true;
+        }
+    } catch (err) {
+        console.log(err.errMsg);
+    }
+});
 
 const userSlice = createSlice({
     name: 'user',
@@ -63,10 +80,27 @@ const userSlice = createSlice({
             state.success = null;
             state.error = null;
             state.loading = false;
+        },
+        signoutSuccess: (state) => {
+            state.currentUser = null;
+            state.success = null;
+            state.error = null;
+            state.loading = false;
         }
+    },
+    extraReducers(builder) {
+        builder.addCase(handleSignout.fulfilled, (state) => {
+            state.currentUser = null;
+            state.success = null;
+            state.error = null;
+            state.loading = false;
+            return;
+        })
     }
 })
 
-export const { emptyUserNotification, signInFailure, signInSuccess, signInStart, updateFailure, updateStart, updateSuccess, deleteUserFailure, deleteUserStart, deleteUserSuccess } = userSlice.actions;
+
+
+export const { signoutSuccess, emptyUserNotification, signInFailure, signInSuccess, signInStart, updateFailure, updateStart, updateSuccess, deleteUserFailure, deleteUserStart, deleteUserSuccess } = userSlice.actions;
 
 export default userSlice.reducer;

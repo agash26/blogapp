@@ -5,7 +5,7 @@ import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/
 import { app } from '../firebase';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { deleteUserFailure, deleteUserStart, deleteUserSuccess, emptyUserNotification, updateFailure, updateStart, updateSuccess } from '../redux/user/userSlice';
+import { deleteUserFailure, deleteUserStart, deleteUserSuccess, emptyUserNotification, handleSignout, updateFailure, updateStart, updateSuccess } from '../redux/user/userSlice';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
 
 export default function DashProfile() {
@@ -74,9 +74,9 @@ export default function DashProfile() {
         }
     }, [imageFile]);
 
-    useEffect(()=>{
+    useEffect(() => {
         dispatch(emptyUserNotification());
-    },[]);
+    }, []);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -168,7 +168,7 @@ export default function DashProfile() {
             </form>
             <div className='text-red-500 flex mt-5 justify-between'>
                 <span className='cursor-pointer' onClick={() => setShowModal(true)}>Delete Account</span>
-                <span className='cursor-pointer'>Sign Out</span>
+                <span className='cursor-pointer' onClick={()=>dispatch(handleSignout())}>Sign Out</span>
             </div>
             {errorMessage && (
                 <Alert className='mt-5' color='failure'>
