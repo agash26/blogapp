@@ -7,9 +7,10 @@ import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { deleteUserFailure, deleteUserStart, deleteUserSuccess, emptyUserNotification, handleSignout, updateFailure, updateStart, updateSuccess } from '../redux/user/userSlice';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
+import { Link } from 'react-router-dom';
 
 export default function DashProfile() {
-    const { currentUser } = useSelector((state) => state.user);
+    const { currentUser, loading } = useSelector((state) => state.user);
     const [imageFile, setImageFile] = useState(null);
     const [imageFileUrl, setImageFileUrl] = useState(null);
     const [imageUploadProgress, setImageUploadProgress] = useState(null);
@@ -164,11 +165,19 @@ export default function DashProfile() {
                     defaultValue={currentUser.email} onChange={handleChange} />
                 <TextInput
                     type='password' id='password' placeholder='password' onChange={handleChange} />
-                <Button type='submit' gradientDuoTone="purpleToBlue" outline disabled={imageFileLoading}>Update</Button>
+                <Button type='submit' gradientDuoTone="purpleToBlue" outline disabled={loading || imageFileLoading}>{loading ? 'loading...' : 'Update'}</Button>
+                {currentUser.isAdmin &&
+                    <Link to='create-post'>
+                        <Button
+                            type='button'
+                            gradientDuoTone='purpleToPink'
+                            className='w-full'
+                        >Create Post</Button>
+                    </Link>}
             </form>
             <div className='text-red-500 flex mt-5 justify-between'>
                 <span className='cursor-pointer' onClick={() => setShowModal(true)}>Delete Account</span>
-                <span className='cursor-pointer' onClick={()=>dispatch(handleSignout())}>Sign Out</span>
+                <span className='cursor-pointer' onClick={() => dispatch(handleSignout())}>Sign Out</span>
             </div>
             {errorMessage && (
                 <Alert className='mt-5' color='failure'>

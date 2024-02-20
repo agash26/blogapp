@@ -11,7 +11,9 @@ export const handleSignout = createAsyncThunk('user/signout', async () => {
     try {
         const res = await fetch('/api/user/signout', {
             method: 'POST',
-            "Content-Type": "application/json"
+            headers: {
+                "Content-Type": "application/json"
+            }
         });
         const data = await res.json();
         if (!res.ok) {
