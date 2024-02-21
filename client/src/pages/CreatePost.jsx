@@ -58,6 +58,7 @@ const CreatePost = () => {
                 setPublishError(data.errMsg);
             } else {
                 setPublishError(null);
+                // setFormData({});
             }
         } catch (error) {
             setPublishError(error.errMsg);
