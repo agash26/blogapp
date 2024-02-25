@@ -1,50 +1,49 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchPosts, selectAllPosts } from "../redux/post/postSlice";
+import { fetchPosts } from "../redux/post/postSlice";
 import { Link } from 'react-router-dom';
 import { Table } from 'flowbite-react'
 
 const DashPosts = () => {
   const [showMore, setShowMore] = useState(true);
+  const [userPosts, setUserPosts] = useState([]);
+  const [totalPosts, setTotalPosts] = useState(null);
+  const [lastMonthPosts, setLastMonthPosts] = useState(null);
   const { currentUser } = useSelector(state => state.user);
   const dispatch = useDispatch();
 
-  // const postState = useSelector(state => state.post);
-  // console.log(postState);
-  // setUserPosts(postState.post.posts);
-  // console.log(userPosts);
-  // if (userPosts && userPosts.length < 9) {
-  //   const startIndex = userPosts.length;
-  //   ()=>setShowMore(false);
-  //   console.log(showMore);
-  //   // dispatch(fetchPosts({ id: currentUser._id, startIndex: startIndex })).unwrap();
-
-  // // const postState = useSelector(state => state.post);
-  // // console.log(postState);
-  // }
-  const handleShowMore = async () => {
-    // const startIndex = userPosts.length;
-    // const a = dispatch(fetchPosts({ id: currentUser._id, startIndex })).unwrap();
-    // console.log(a);
-
-  }
   useEffect(() => {
     if (currentUser.isAdmin) {
-      dispatch(fetchPosts({ id: currentUser._id, startIndex: 0 })).unwrap();
+      dispatch(fetchPosts({ id: currentUser._id, startIndex: 0 }))
+        .unwrap()
+        .then(action => {
+          console.log(action);
+          setUserPosts(action.posts);
+          setTotalPosts(action.totalPosts);
+          setLastMonthPosts(action.lastMonthPosts);
+          if (action.posts?.length < 9) {
+            setShowMore(false);
+          }
+        });
     }
   }, [currentUser, dispatch]);
-  try {
-    const userPosts = useSelector(selectAllPosts) || [];
-    console.log('userPosts:', userPosts);
-  } catch (error) {
-    console.error('Error in useSelector:', error);
-  }
-  // console.log(userPosts);
-  const userPosts=[];
+
+  const handleShowMore = async () => {
+    const startIndex = userPosts.length;
+    dispatch(fetchPosts({ id: currentUser._id, startIndex })).unwrap()
+      .then(action => {
+        setUserPosts(prevPosts => [...prevPosts, ...action.posts])
+        setTotalPosts(action.totalPosts);
+        setLastMonthPosts(action.lastMonthPosts);
+        if (action.posts?.length < 9) {
+          setShowMore(false);
+        }
+      });
+  };
 
   return (
     <div className="table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-100 dark:scrollbar-thumb-slate-500">
-      {currentUser.isAdmin && userPosts.length > 0 ? (
+      {currentUser.isAdmin && userPosts?.length > 0 ? (
         <>
           <Table hoverable className='shadow-md'>
             <Table.Head>

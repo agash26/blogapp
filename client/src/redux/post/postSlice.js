@@ -11,10 +11,10 @@ const initialState = postsAdapter.getInitialState({
 });
 
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async (params) => {
-    const { id } = params;
+    const { id, startIndex } = params;
     // const res = await axios.get(`/api/post/getposts?userId=${id}`);
     try {
-        const res = await fetch(`/api/post/getposts?userId=${id}&startIndex=9`, {
+        const res = await fetch(`/api/post/getposts?userId=${id}&startIndex=${startIndex}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -28,7 +28,7 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts', async (params) =>
 })
 
 const postSlice = createSlice({
-    name: "post",
+    name: "posts",
     initialState,
     reducers: {
         postsFetchStart: (state) => {
@@ -43,17 +43,8 @@ const postSlice = createSlice({
             .addCase(fetchPosts.pending, (state) => {
                 state.status = 'loading'
             })
-            .addCase(fetchPosts.fulfilled, (state, action) => {
-                // state.posts = action.payload.posts;
-                // state.lastMonthPosts = action.payload.lastMonthPosts;
-                // state.totalPosts = action.payload.totalPosts;
+            .addCase(fetchPosts.fulfilled, (state) => {
                 state.status = 'success';
-                action.payload.posts.map(post => {
-                    post.id = post._id
-                    return post;
-                })
-                console.log(action.payload.posts)
-                postsAdapter.upsertMany(state, action.payload.posts);
             })
             .addCase(fetchPosts.rejected, (state, action) => {
                 state.status = 'fail'
@@ -61,8 +52,8 @@ const postSlice = createSlice({
             })
     }
 })
-export const {
-    selectAll: selectAllPosts
-} = postsAdapter.getSelectors((state) => state.post)
+
+
+export const selectAllPosts = (state) => state.post.posts;
 export const { postsFetchStart, postsFetchEnd } = postSlice.actions;
 export default postSlice.reducer;
