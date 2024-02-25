@@ -11,7 +11,7 @@ const initialState = postsAdapter.getInitialState({
 });
 
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async (params) => {
-    const { id, startIndex, postId } = params;
+    const { id, startIndex, postId, slug } = params;
     let url = `/api/post/getposts`;
 
     try {
@@ -19,7 +19,8 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts', async (params) =>
             params: {
                 userId: id,
                 ...(startIndex !== undefined && { startIndex: startIndex }),
-                ...(postId !== undefined && { postId: postId }) // Conditionally include postId if it's defined
+                ...(postId !== undefined && { postId: postId }), // Conditionally include postId if it's defined
+                ...(slug !== undefined && { slug: slug }),
             }
         });
 

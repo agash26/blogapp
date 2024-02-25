@@ -19,7 +19,8 @@ const postSchema = mongoose.Schema({
     },
     slug: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     content:{
         type: String

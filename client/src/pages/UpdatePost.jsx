@@ -30,7 +30,7 @@ const UpdatePost = () => {
             .catch(err => {
                 setPublishError(err);
             });
-    }, []);
+    }, [currentUser._id]);
 
     const handleUploadImage = async () => {
         try {
@@ -65,7 +65,7 @@ const UpdatePost = () => {
     const handlePostSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await fetch(`/api/post/updatepost/${formData._id}/${currentUser._id}`, {
+            const res = await fetch(`/api/post/updatepost/${postId}/${currentUser._id}`, {
                 method: 'PUT',
                 headers: {
                     "Content-Type": "application/json"
@@ -89,8 +89,8 @@ const UpdatePost = () => {
             <h1 className="my-7 text-center font-semibold text-3xl">Update a Post</h1>
             <form className="flex flex-col gap-4" onSubmit={handlePostSubmit}>
                 <div className="flex flex-col gap-4 sm:flex-row justify-between">
-                    <TextInput placeholder="Title *" type="text" required id="title" className="flex-1" onChange={e => setFormData({ ...formData, title: e.target.value })} value={formData.title} />
-                    <Select onChange={e => setFormData({ ...formData, category: e.target.value })} value={formData.category}>
+                    <TextInput placeholder="Title *" type="text" required id="title" className="flex-1" onChange={e => setFormData({ ...formData, title: e.target.value })} value={formData?.title} />
+                    <Select onChange={e => setFormData({ ...formData, category: e.target.value })} value={formData?.category}>
                         <option value="uncategorized">Select a category</option>
                         <option value="mongo">MongoDB</option>
                         <option value="node">Node</option>
@@ -113,10 +113,10 @@ const UpdatePost = () => {
                 {
                     formData.image &&
                     <img
-                        src={formData.image}
+                        src={formData?.image}
                         alt='up-img' className="w-full h-72 object-cover" />
                 }
-                <ReactQuill theme="snow" placeholder="Type here...." className="h-72 mb-12" required onChange={(value) => setFormData({ ...formData, content: value })} value={formData.content} />
+                <ReactQuill theme="snow" placeholder="Type here...." className="h-72 mb-12" required onChange={(value) => setFormData({ ...formData, content: value })} value={formData?.content} />
                 <Button type="submit" gradientDuoTone="purpleToPink" >Update</Button>
                 {publishError && <Alert className="'mt-5" color='failure'>{publishError}</Alert>}
             </form >

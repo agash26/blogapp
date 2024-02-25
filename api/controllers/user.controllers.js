@@ -11,7 +11,7 @@ export const updateUser = async (req, res, next) => {
         return next(errorHandler(403, 'You are not allowed to update this user'))
     }
     if (req.body.password) {
-        if (req.body.password.length < 6) {
+        if (req.body.password.length < 5) {
             return next(errorHandler(400, 'Password must be atleast 6 characters'))
         }
 
@@ -42,7 +42,7 @@ export const updateUser = async (req, res, next) => {
 }
 
 export const deleteUser = async (req, res, next) => {
-    if (req.user.userId !== req.params.userId) {
+    if (!req.user.isAdmin && req.user.userId !== req.params.userId) {
         return next(errorHandler(403, 'You are not allowed to delete this user'))
     }
     try {
@@ -60,5 +60,38 @@ export const signout = (req, res, next) => {
             .json('User Signout Successfully');
     } catch (err) {
         next(err)
+    }
+}
+
+export const getUsers = async (req, res, next) => {
+    try {
+        if (!req.user.isAdmin) {
+            return next(errorHandler(403, 'You are not allowed to see all users'))
+        }
+
+        const startIndex = parseInt(req.query.startIndex) || 0;
+        const limit = parseInt(req.query.limit) || 9;
+        const sortDirection = req.query.order === 'asc' ? 1 : -1;
+        const users = await User.find()
+            .sort({ updatedAt: sortDirection })
+            .skip(startIndex).
+            limit(limit);
+        const userWithoutPassword = users.map((user) => {
+            const { password, ...rest } = user._doc;
+            return rest;
+        });
+        const totalUsers = await User.countDocuments();
+        const now = new Date();
+        const oneMonthAgo = new Date(now.getFullYear(),
+            now.getMonth() - 1,
+            now.getDate());
+        const lastMonthUsers = await User.countDocuments({ createdAt: { $gte: oneMonthAgo } });
+        res.status(200).json({
+            users: userWithoutPassword,
+            totalUsers,
+            lastMonthUsers
+        });
+    } catch (error) {
+        next(error)
     }
 }
