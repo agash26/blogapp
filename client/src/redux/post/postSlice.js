@@ -1,5 +1,5 @@
 import { createAsyncThunk, createEntityAdapter, createSlice } from "@reduxjs/toolkit"
-// import axios from "axios";
+import axios from "axios";
 const postsAdapter = createEntityAdapter()
 const initialState = postsAdapter.getInitialState({
     state: 'idle',
@@ -11,21 +11,37 @@ const initialState = postsAdapter.getInitialState({
 });
 
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async (params) => {
-    const { id, startIndex } = params;
-    // const res = await axios.get(`/api/post/getposts?userId=${id}`);
+    const { id, startIndex, postId } = params;
+    let url = `/api/post/getposts`;
+
     try {
-        const res = await fetch(`/api/post/getposts?userId=${id}&startIndex=${startIndex}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
+        const response = await axios.get(url, {
+            params: {
+                userId: id,
+                ...(startIndex !== undefined && { startIndex: startIndex }),
+                ...(postId !== undefined && { postId: postId }) // Conditionally include postId if it's defined
             }
-        })
-        const data = await res.json();
-        return data;
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching posts:', error);
+        throw error;
+    }
+});
+
+export const deletePost = createAsyncThunk('posts/deletePost', async (initialPosts) => {
+    const { postId, userId } = initialPosts;
+    try {
+        const response = await axios.delete(`/api/post/deletepost/${postId}/${userId}`)
+        console.log(response);
+        if (response?.status === 200) return initialPosts;
+        return `${response?.status}: ${response?.errMsg}`
     } catch (err) {
-        console.log(err.errMsg);
+        console.error(err.message)
     }
 })
+
 
 const postSlice = createSlice({
     name: "posts",
@@ -47,6 +63,13 @@ const postSlice = createSlice({
                 state.status = 'success';
             })
             .addCase(fetchPosts.rejected, (state, action) => {
+                state.status = 'fail'
+                state.error = action.error.errMsg
+            })
+            .addCase(deletePost.fulfilled, (state) => {
+                state.status = 'success';
+            })
+            .addCase(deletePost.rejected, (state, action) => {
                 state.status = 'fail'
                 state.error = action.error.errMsg
             })
