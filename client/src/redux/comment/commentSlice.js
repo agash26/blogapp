@@ -25,7 +25,7 @@ export const addComment = createAsyncThunk('comments/addComment', async (params)
 export const fetchComments = createAsyncThunk('comments/fetchComments', async (params) => {
     let url = `/api/comment/getcomments`;
     try {
-        const response = await axios.get(url, {params});
+        const response = await axios.get(url, { params });
         // console.log(response);
         return response.data;
     } catch (error) {
@@ -35,16 +35,33 @@ export const fetchComments = createAsyncThunk('comments/fetchComments', async (p
 });
 
 export const deleteComment = createAsyncThunk('comments/deleteComment', async (initialComments) => {
-    const { commentId, userId } = initialComments;
     try {
-        const response = await axios.delete(`/api/comment/deletecomment/${commentId}/${userId}`)
-        if (response?.status === 200) return initialComments;
-        return `${response?.status}: ${response?.errMsg}`
+        const response = await axios.delete(`/api/comment/deletecomment`, { data: initialComments })
+        if (response?.status === 200) return response.data;
     } catch (err) {
         console.error(err.message)
     }
+});
+
+export const likeComment = createAsyncThunk('comments/likeComment', async (params) => {
+    try {
+        const res = await axios.put('/api/comment/likecomment', params);
+        return res.data;
+    } catch (err) {
+        console.error(err.message)
+
+    }
 })
 
+export const editComment = createAsyncThunk('comments/editComment', async (params) => {
+    try {
+        const res = await axios.put('/api/comment/editcomment', params);
+        return res.data;
+    } catch (err) {
+        console.error(err.message)
+
+    }
+})
 
 const commentSlice = createSlice({
     name: "comments",

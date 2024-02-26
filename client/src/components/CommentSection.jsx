@@ -1,16 +1,20 @@
-import { Alert, Button, Textarea } from "flowbite-react"
+import { Alert, Button, Modal, ModalBody, ModalHeader, Textarea } from "flowbite-react"
 import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { Link } from "react-router-dom"
-import { addComment, fetchComments } from "../redux/comment/commentSlice"
+import { Link, useNavigate } from "react-router-dom"
+import { addComment, deleteComment, fetchComments, likeComment } from "../redux/comment/commentSlice"
 import Comment from "./Comment"
+import { HiOutlineExclamationCircle } from "react-icons/hi"
 
 const CommentSection = ({ postId }) => {
-    const { currentUser } = useSelector(state => state.user)
+    const { currentUser } = useSelector(state => state.user);
     const [comment, setComment] = useState('');
+    const [deleteCommentId, setDeleteCommentId] = useState('');
     const [commentList, setCommentList] = useState([]);
     const [commentError, setCommentError] = useState('');
+    const [modal, setModal] = useState(false);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const handleSubmit = async (e) => {
         e.preventDefault();
         dispatch(addComment({ content: comment, postId, userId: currentUser._id }))
@@ -31,6 +35,42 @@ const CommentSection = ({ postId }) => {
                 setCommentList(result);
             })
     }, [postId]);
+
+    const handleLike = async (commentId) => {
+        try {
+            if (!currentUser) {
+                navigate('/sign-in');
+                return;
+            }
+            dispatch(likeComment({ commentId }))
+                .unwrap()
+                .then((action) => {
+                    setCommentList(commentList.map(comment => {
+                        return comment._id === commentId ? {
+                            ...comment,
+                            likes: action.likes,
+                            numberOfLikes: action.numberOfLikes
+                        } : comment;
+                    }))
+                })
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const handleEdit = async (comment, editedContent) => {
+        setCommentList(commentList.map(c =>
+            c._id === comment._id ? { ...comment, content: editedContent } : c))
+    }
+
+    const handleDelete = async (commentId) => {
+        setModal(false);
+        dispatch(deleteComment({ commentId }))
+            .unwrap()
+            .then(() => {
+                setCommentList(commentList.filter((c) => c._id !== commentId))
+            })
+    }
 
     return (
         <div>
@@ -84,9 +124,29 @@ const CommentSection = ({ postId }) => {
             )}
             {
                 commentList.map((comment) => (
-                    <Comment key={comment._id} comment={comment} />
+                    <Comment key={comment._id} comment={comment} onLike={handleLike} onEdit={handleEdit}
+                        onDelete={(commentId) => {
+                            setModal(true);
+                            setDeleteCommentId(commentId);
+                        }} />
                 ))
             }
+            <Modal show={modal} onClose={() => setModal(false)} popup size='md'>
+                <ModalHeader>
+                    <ModalBody>
+                        <div className="text-center">
+                            <HiOutlineExclamationCircle className='h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto' />
+                            <h3 className='mb-5 text-lg text-gray-500 dark:text-gray-400'>
+                                Are you sure you want to delete your acccount?
+                            </h3>
+                            <div className='flex justify-center gap-4'>
+                                <Button color='failure' onClick={() => handleDelete(deleteCommentId)}>Yes I&apos;m Sure</Button>
+                                <Button color='gray' onClick={() => setModal(false)}>No, Cancel</Button>
+                            </div>
+                        </div>
+                    </ModalBody>
+                </ModalHeader>
+            </Modal>
         </div>
     )
 }
