@@ -15,9 +15,10 @@ const CommentSection = ({ postId }) => {
         e.preventDefault();
         dispatch(addComment({ content: comment, postId, userId: currentUser._id }))
             .unwrap()
-            .then(() => {
+            .then((action) => {
                 setComment('');
                 setCommentError('');
+                setCommentList([action, ...commentList]);
             })
             .catch(err => {
                 setCommentError(err);
