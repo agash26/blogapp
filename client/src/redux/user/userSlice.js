@@ -8,6 +8,7 @@ const initialState = usersAdapter.getInitialState({
     error: null,
     lastMonthUsers: 0,
     totalUsers: 0,
+    users: null,
     loading: false,
     success: null
 });
@@ -141,7 +142,7 @@ const userSlice = createSlice({
             })
             .addCase(fetchUsers.fulfilled, (state, action) => {
                 state.status = 'success';
-                state.users = action.payload;
+                state.users = action.payload.users;
             })
             .addCase(fetchUsers.rejected, (state, action) => {
                 state.status = 'fail'
@@ -158,14 +159,9 @@ const userSlice = createSlice({
 })
 
 
-// Selector to get all users
-export const selectAllUsers = (state) => usersAdapter.getSelectors().selectAll(state.user);
-
 // Selector to get user by ID
 export const selectUserById = (state, userId) => {
-    const allUsers = selectAllUsers(state);
-    console.log("===css", userId);
-    return allUsers.find(user => user.id === userId);
+    return state.user.users.find(user => user._id === userId);
 };
 
 export const { signoutSuccess, emptyUserNotification, signInFailure, signInSuccess, signInStart, updateFailure, updateStart, updateSuccess, deleteUserFailure, deleteUserStart, deleteUserSuccess } = userSlice.actions;

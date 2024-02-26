@@ -3,7 +3,6 @@ import { useSelector } from "react-redux"
 import { selectUserById } from "../redux/user/userSlice";
 
 const Comment = ({comment}) => {
-    console.log(comment.userId)
     const userById = useSelector(state => selectUserById(state, comment.userId));
     console.log("==",userById);
     useEffect(()=>{
