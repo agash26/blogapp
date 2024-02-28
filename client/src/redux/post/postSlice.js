@@ -11,7 +11,7 @@ const initialState = postsAdapter.getInitialState({
 });
 
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async (params) => {
-    const { id, startIndex, postId, slug } = params;
+    const { id, startIndex, postId, slug, limit } = params;
     let url = `/api/post/getposts`;
 
     try {
@@ -21,6 +21,7 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts', async (params) =>
                 ...(startIndex !== undefined && { startIndex: startIndex }),
                 ...(postId !== undefined && { postId: postId }), // Conditionally include postId if it's defined
                 ...(slug !== undefined && { slug: slug }),
+                ...(limit !== undefined && { limit: limit }),
             }
         });
 
@@ -60,8 +61,9 @@ const postSlice = createSlice({
             .addCase(fetchPosts.pending, (state) => {
                 state.status = 'loading'
             })
-            .addCase(fetchPosts.fulfilled, (state) => {
+            .addCase(fetchPosts.fulfilled, (state, action) => {
                 state.status = 'success';
+                state.posts = action.payload
             })
             .addCase(fetchPosts.rejected, (state, action) => {
                 state.status = 'fail'

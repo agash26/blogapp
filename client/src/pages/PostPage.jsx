@@ -5,12 +5,14 @@ import { useEffect, useState } from 'react';
 import { Button, Spinner } from 'flowbite-react';
 import CallToAction from '../components/CallToAction';
 import CommentSection from '../components/CommentSection';
+import PostCard from '../components/PostCard';
 
 const PostPage = () => {
   const { slug } = useParams();
   const dispatch = useDispatch();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [recentPosts, setRecentPosts] = useState([]);
   useEffect(() => {
     setLoading(true);
     dispatch(fetchPosts({ slug }))
@@ -20,6 +22,13 @@ const PostPage = () => {
         setLoading(false);
       });
   }, [slug]);
+  useEffect(() => {
+    dispatch(fetchPosts({ limit: '3' }))
+      .unwrap()
+      .then(action => {
+        setRecentPosts(action.posts);
+      });
+  })
   if (loading)
     return (
       <div className='flex justify-center min-h-screen'>
@@ -42,7 +51,18 @@ const PostPage = () => {
       <div className="max-w-4xl mx-auto w-full">
         <CallToAction />
       </div>
-      <CommentSection postId={post?._id}/>
+      <CommentSection postId={post?._id} />
+      <div className='flex flex-col justify-center items-center mb-5'>
+        <h1 className='text-xl mt-5'>Recent Articles</h1>
+        <div className='flex flex-wrap gap-5 mt-5 justify-center'>
+          {
+            recentPosts &&
+            recentPosts.map((post) => (
+              <PostCard key={post._id} post={post} />
+            ))
+          }
+        </div>
+      </div>
     </main>
   )
 }
