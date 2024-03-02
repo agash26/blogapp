@@ -22,7 +22,7 @@ const CommentSection = ({ postId }) => {
             .then((action) => {
                 setComment('');
                 setCommentError('');
-                setCommentList([action, ...commentList]);
+                setCommentList([action.comments, ...commentList]);
             })
             .catch(err => {
                 setCommentError(err);
@@ -32,7 +32,7 @@ const CommentSection = ({ postId }) => {
         dispatch(fetchComments({ postId }))
             .unwrap()
             .then((result) => {
-                setCommentList(result);
+                setCommentList(result.comments);
             })
     }, [postId]);
 

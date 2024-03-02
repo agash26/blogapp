@@ -26,7 +26,6 @@ export const fetchComments = createAsyncThunk('comments/fetchComments', async (p
     let url = `/api/comment/getcomments`;
     try {
         const response = await axios.get(url, { params });
-        // console.log(response);
         return response.data;
     } catch (error) {
         console.error('Error fetching comments:', error);

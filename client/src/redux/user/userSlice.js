@@ -25,7 +25,6 @@ export const fetchUsers = createAsyncThunk('users/fetchUsers', async (params) =>
                 ...(userId !== undefined && { userId: userId }) // Conditionally include userId if it's defined
             }
         });
-console.log(response);
         return response.data;
     } catch (error) {
         console.error('Error fetching users:', error);
