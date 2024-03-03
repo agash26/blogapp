@@ -25,7 +25,6 @@ export default function DashComponent() {
             dispatch(fetchComments({ userId: currentUser._id }))
                 .unwrap()
                 .then(action => {
-                    console.log(action);
                     setComments(action.comments);
                     setTotalComments(action.totalComments);
                     setLastMonthComments(action.lastMonthComments);
@@ -34,14 +33,12 @@ export default function DashComponent() {
                 .unwrap()
                 .then(action => {
                     console.log(action);
-                    setUsers(action.users);
                     setTotalUsers(action.totalUsers);
                     setLastMonthUsers(action.lastMonthUsers);
                 });
             dispatch(fetchPosts({ userId: currentUser._id }))
                 .unwrap()
                 .then(action => {
-                    console.log(action);
                     setPosts(action.posts);
                     setTotalPosts(action.totalPosts);
                     setLastMonthPosts(action.lastMonthPosts);
