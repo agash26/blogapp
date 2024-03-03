@@ -8,27 +8,27 @@ import CommentSection from '../components/CommentSection';
 import PostCard from '../components/PostCard';
 
 const PostPage = () => {
-  const { slug } = useParams();
+  const { postSlug } = useParams();
   const dispatch = useDispatch();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(false);
   const [recentPosts, setRecentPosts] = useState([]);
   useEffect(() => {
     setLoading(true);
-    dispatch(fetchPosts({ slug }))
+    dispatch(fetchPosts({ slug: postSlug }))
       .unwrap()
       .then(action => {
         setPost(action.posts[0]);
         setLoading(false);
       });
-  }, [slug]);
+  }, [postSlug]);
   useEffect(() => {
     dispatch(fetchPosts({ limit: '3' }))
       .unwrap()
       .then(action => {
         setRecentPosts(action.posts);
       });
-  })
+  },[])
   if (loading)
     return (
       <div className='flex justify-center min-h-screen'>

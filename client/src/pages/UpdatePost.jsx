@@ -21,7 +21,7 @@ const UpdatePost = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        dispatch(fetchPosts({ id: currentUser._id, startIndex: 0, postId }))
+        dispatch(fetchPosts({ userId: currentUser._id, startIndex: 0, postId }))
             .unwrap()
             .then((action) => {
                 setFormData(action.posts[0]);

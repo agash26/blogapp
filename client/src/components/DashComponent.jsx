@@ -38,7 +38,7 @@ export default function DashComponent() {
                     setTotalUsers(action.totalUsers);
                     setLastMonthUsers(action.lastMonthUsers);
                 });
-            dispatch(fetchPosts({ id: currentUser._id }))
+            dispatch(fetchPosts({ userId: currentUser._id }))
                 .unwrap()
                 .then(action => {
                     console.log(action);

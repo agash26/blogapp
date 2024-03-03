@@ -17,7 +17,7 @@ const DashPosts = () => {
 
   useEffect(() => {
     if (currentUser.isAdmin) {
-      dispatch(fetchPosts({ id: currentUser._id }))
+      dispatch(fetchPosts({ userId: currentUser._id }))
         .unwrap()
         .then(action => {
           setUserPosts(action.posts);
@@ -32,7 +32,7 @@ const DashPosts = () => {
 
   const handleShowMore = async () => {
     const startIndex = userPosts.length;
-    dispatch(fetchPosts({ id: currentUser._id, startIndex })).unwrap()
+    dispatch(fetchPosts({ userId: currentUser._id, startIndex })).unwrap()
       .then(action => {
         setUserPosts(prevPosts => [...prevPosts, ...action.posts])
         setTotalPosts(action.totalPosts);

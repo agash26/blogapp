@@ -2,16 +2,15 @@ import { Link } from 'react-router-dom';
 import CallToAction from '../components/CallToAction';
 import { useEffect, useState } from 'react';
 import { fetchPosts } from '../redux/post/postSlice';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import PostCard from '../components/PostCard';
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
   const dispatch = useDispatch();
-  const { currentUser } = useSelector(state => state.user);
 
   useEffect(() => {
-    dispatch(fetchPosts({ id: currentUser._id }))
+    dispatch(fetchPosts())
       .unwrap()
       .then(action => {
         setPosts(action.posts);
