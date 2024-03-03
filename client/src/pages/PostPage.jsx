@@ -44,7 +44,7 @@ const PostPage = () => {
       <img src={post?.image} alt='post image' className='mt-10 p-3 max-h-[600px] w-full object-cover' />
       <div className='flex justify-between p-3 border-b border-slate-500 mx-auto w-full max-w-2xl text-xs'>
         <span>{new Date(post?.createdAt).toLocaleDateString()}</span>
-        <span>{(post?.content.length / 1000).toFixed(0)} mins read</span>
+        <span>{post?.content ? (post.content.length / 1000).toFixed(0) : 0} mins read</span>
       </div>
       <div dangerouslySetInnerHTML={{ __html: post?.content }} className='post-content p-3 max-w-2xl mx-auto w-full'>
       </div>
